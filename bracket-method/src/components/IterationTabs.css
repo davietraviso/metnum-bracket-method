@@ -1,0 +1,23 @@
+.iteration-tabs .table {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.iteration-tabs .table th,
+.iteration-tabs .table td {
+  vertical-align: middle;
+}
+
+.iteration-tabs .manual-container {
+  margin-top: 20px;
+}
+
+.iteration-tabs .manual-container div {
+  margin-bottom: 15px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+
