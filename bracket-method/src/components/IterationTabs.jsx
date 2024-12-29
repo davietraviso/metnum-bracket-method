@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { MathJax, MathJaxContext } from "better-react-mathjax";
 import { Tab, Tabs, Container, Row, Col } from "react-bootstrap";
+import IterationGraph from "./IterationGraph";
 import "./IterationTabs.css";
+import FakePositionGraph from "./FakePositionGraph";
 
-const IterationTabs = ({ iterations, precision, root }) => {
+const IterationTabs = ({ iterations, precision, root, functionInput, method }) => {
   const [key, setKey] = useState("table");
-
-//   useEffect(() => {
-//       // Force MathJax to re-render the math equations when state changes
-//       window.MathJax.typeset();
-//     }, [iterations]); // This triggers a re-render when iterations change
 
   const formatNumber = (num) => {
     return num.toFixed(precision); // Format number to the given precision
@@ -24,46 +21,47 @@ const IterationTabs = ({ iterations, precision, root }) => {
         className="mb-3"
       >
         <Tab eventKey="table" title="Iterasi Tabel">
-          <table className="table">
-            <thead>
+            <table className="table">
+                <thead>
                 <tr>
                     <MathJaxContext>
-                        <th><MathJax>{`\\(Iterasi\\)`}</MathJax></th>
-                        <th><MathJax>
-                            {`
-                                \\(a\\)
-                            `}
-                            </MathJax></th>
-                        <th><MathJax>{`\\(b\\)`}</MathJax></th>
-                        <th><MathJax>{`\\(f(a)\\)`}</MathJax></th>
-                        <th><MathJax>{`\\(f(b)\\)`}</MathJax></th>
-                        <th><MathJax>{`\\(x_n\\)`}</MathJax></th>
-                        <th><MathJax>
-                            {`
-                            \\(f(x_n)\\)
-                            `}
-                            </MathJax></th>
+                    <th><MathJax>{`\\(Iterasi\\)`}</MathJax></th>
+                    <th><MathJax>{`\\(a\\)`}</MathJax></th>
+                    <th><MathJax>{`\\(b\\)`}</MathJax></th>
+                    <th><MathJax>{`\\(f(a)\\)`}</MathJax></th>
+                    <th><MathJax>{`\\(f(b)\\)`}</MathJax></th>
+                    <th><MathJax>{`\\(x_n\\)`}</MathJax></th>
+                    <th><MathJax>{`\\(f(x_n)\\)`}</MathJax></th>
                     </MathJaxContext>
                 </tr>
-            </thead>
-            <tbody>
-              {iterations.map((iteration, index) => (
-                <tr key={index}>
-                  <td>{index + 1}</td>
-                  <td>{formatNumber(iteration.a)}</td>
-                  <td>{formatNumber(iteration.b)}</td>
-                  <td>{formatNumber(iteration.fa)}</td>
-                  <td>{formatNumber(iteration.fb)}</td>
-                  <td>{formatNumber(iteration.xn)}</td>
-                  <td>{formatNumber(iteration.fxn)}</td>
+                </thead>
+                <tbody>
+                {iterations.map((iteration, index) => (
+                    <tr key={index}>
+                    <td>{index + 1}</td>
+                    <td>{formatNumber(iteration.a)}</td>
+                    <td>{formatNumber(iteration.b)}</td>
+                    <td>{formatNumber(iteration.fa)}</td>
+                    <td>{formatNumber(iteration.fb)}</td>
+                    <td>{formatNumber(iteration.xn)}</td>
+                    <td>{formatNumber(iteration.fxn)}</td>
+                    </tr>
+                ))}
+                </tbody>
+                <tfoot>
+                <tr>
+                    <td colSpan="7" style={{ textAlign: 'center', padding: '1rem' }}>
+                    {root !== null && (
+                        <h3>Root (x): {root.toFixed(precision)}</h3>
+                    )}
+                    </td>
                 </tr>
-              ))}
-            </tbody>
-            {root !== null && <h3>Root (x): {root.toFixed(precision)}</h3>}
-          </table>
+                </tfoot>
+            </table>
         </Tab>
 
-        <Tab eventKey="manual" title="Kalkulasi Iterasi">
+
+        <Tab eventKey="manual" title="Kalkulasi Iterasi" style={{paddingBottom:'50px'}}>
           <MathJaxContext>
             <div>
               {iterations.map((iteration, index) => (
@@ -80,14 +78,23 @@ const IterationTabs = ({ iterations, precision, root }) => {
                     `}
                   </MathJax>
                   <p>
-                    Root berada di antara {`\\((${formatNumber(iteration.a)}) dan (${formatNumber(iteration.b)}\\).`}
+                    Root berada di antara  <br />
+                    <label>
+                    <MathJax>                        
+                        {`\\((${formatNumber(iteration.a)})\\)`} dan  {`\\((${formatNumber(iteration.b)})\\)`}
+                    </MathJax>                  
+                    
+                    </label>
                     
                   </p>
                   <p>
                     Interval baru:{" "}
+                    <MathJax>
                     {iteration.update === "b = xn"
                       ? `\\([${formatNumber(iteration.a)}, ${formatNumber(iteration.xn)}]\\)`
                       : `\\([${formatNumber(iteration.xn)}, ${formatNumber(iteration.b)}]\\)`}
+
+                    </MathJax>
                   </p>
                 </div>
               ))}
@@ -95,6 +102,22 @@ const IterationTabs = ({ iterations, precision, root }) => {
             </div>
           </MathJaxContext>
         </Tab>
+        {method === 'bisection' ? (
+          <Tab eventKey="graph" title="Grafik Iterasi">
+            <IterationGraph iterations={iterations} functionInput={functionInput} />
+          </Tab>
+        ) : (
+          <Tab eventKey="graph" title="Grafik Iterasi">
+            <FakePositionGraph iterations={iterations} functionInput={functionInput} />
+          </Tab>
+        )}
+        {/* <Tab eventKey="graph" title="Grafik Iterasi" style={{paddingBottom:'50px'}}> 
+            <IterationGraph iterations={iterations} functionInput={functionInput} />
+        </Tab>
+        <Tab eventKey="graph" title="Grafik Iterasi2" style={{ paddingBottom: "50px" }}>
+            <FakePositionGraph iterations={iterations} functionInput={functionInput} />
+        </Tab> */}
+
       </Tabs>
     </Container>
   );

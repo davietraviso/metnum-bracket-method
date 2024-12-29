@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { evaluate } from "mathjs";
 import "./Calculator.css";
 import icon2 from '../assets/book.png'
 import icon3 from '../assets/book2.png'
 import IterationTabs from "./IterationTabs";
 import { MathJax, MathJaxContext } from "better-react-mathjax";
-
+// import { EditableMathField } from "react-mathquill";
+// import { MathfieldElement } from "mathlive";
 
 
 const Calculator = () => {
@@ -19,6 +20,26 @@ const Calculator = () => {
   const [method, setMethod] = useState("bisection");
   const [showLegend, setShowLegend] = useState(false);
   const [parsedFunction, setParsedFunction] = useState("");
+  const mathFieldRef = useRef(null); 
+
+// // Define a global variable for browser compatibility
+// if (typeof global === "undefined") {
+//     var global = window;
+//   }
+  
+
+//   useEffect(() => {
+//     // Inisialisasi MathQuill setelah komponen dirender
+//     const MQ = MathQuill.getInterface(2); // Mengambil interface MathQuill
+//     const mathField = MQ.MathField(mathFieldRef.current, {
+//       handlers: {
+//         edit: () => {
+//           // Mendapatkan input matematis yang sudah diformat setiap kali pengguna mengetik
+//           setFunctionInput(mathField.latex());
+//         }
+//       }
+//     });
+//   }, []); sebelum
 
 
   const calculateBisection = (parsedInput) => {
@@ -106,7 +127,6 @@ const Calculator = () => {
     return input.replace(/(\d)\^(\d+)/g, '$1^{#$2}');
   };
 
-
   
 
   return (
@@ -165,7 +185,7 @@ const Calculator = () => {
 
                 {/* Desired Tolerance */}
                 <label style={{ display: "flex", alignItems: "center", flex: 1 }}>
-                <span style={{ fontWeight: "bold" }}>Desired Tolerance:</span>
+                <span style={{ fontWeight: "bold" }}>Toleransi Perhitungan:</span>
                 <input
                     type="number"
                     style={{ marginLeft: "10px", flex: 1 }}
@@ -206,29 +226,39 @@ const Calculator = () => {
                     False Position Method
                 </button>
             </div>
-            <button onClick={handleCalculation}>Calculate</button>
+            <button onClick={handleCalculation}>Kalkulasi</button>
         </MathJaxContext>
       </div>
 
       <h3>Hasil:</h3>
+      <MathJaxContext>
+      <MathJax>
+
+      
       {showLegend && (
-        <div className="legend">
+        <div className="legend" style={{marginBottom:'20px'}}>
             <p><strong>Legend:</strong></p>
             <div className="row row-width">
+            
             <div className="col-5">
-                <p><strong>a</strong>: Batas bawah interval</p>
-                <p><strong>b</strong>: Batas atas interval</p>
-                <p><strong>f(a)</strong>: Nilai fungsi pada a</p>
-                <p><strong>f(b)</strong>: Nilai fungsi pada b</p>
+                <p><strong>{`\\(a\\)`}</strong>: Batas bawah interval</p>
+                <p><strong>{`\\(b\\)`}</strong>: Batas atas interval</p>
+                <p><strong>{`\\(f(a)\\)`}</strong>: Nilai fungsi pada {`\\(a\\)`}</p>
+                <p><strong>{`\\(f(b)\\)`}</strong>: Nilai fungsi pada {`\\(b\\)`}</p>
             </div>
             <div className="col-6">
-                <p><strong>x_n</strong>: Titik tengah atau solusi sementara</p>
-                <p><strong>f(x_n)</strong>: Nilai fungsi pada x_n</p>
-                <p><strong>Pembaruan Interval</strong>: Interval baru berdasarkan evaluasi fungsi</p>
+                <p><strong>{`\\(x_n\\)`}</strong>: Titik tengah atau solusi sementara</p>
+                <p><strong>{`\\(f(x_n)\\)`}</strong>: Nilai fungsi pada {`\\(x_n\\)`}</p>
+                <p><strong>Toleransi Perhitungan</strong>: <br />Memastikan bahwa akar sudah cukup terkunci dalam interval {`\\([a,b].\\)`} <br />
+                Iterasi tetap berjalan hingga {`\\(| b - a |\\)`} memenuhi toleransi <br />
+                {`\\(| b - a | \\lt toleransi\\)`}                 
+                </p>
             </div>
             </div>
         </div>
         )}
+      </MathJax>
+      </MathJaxContext>
 
       <button className="button-legend" onClick={() => setShowLegend(!showLegend)}>
         {showLegend ? (
@@ -249,8 +279,11 @@ const Calculator = () => {
           tolerance={tolerance}
           precision={precision}
           root={root}
+          method={method}
         />
       )}
+
+       
     </div>
   );
 };
