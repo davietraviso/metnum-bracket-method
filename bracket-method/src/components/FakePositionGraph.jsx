@@ -52,11 +52,10 @@ const FakePositionGraph = ({ iterations, functionInput }) => {
 
   const interpolationLines = generateInterpolationLines();
 
-  // Generate horizontal lines (visual interval guides)
   const generateHorizontalLines = () => {
     const horizontalLines = iterations.slice(0, step + 1).map((iteration, index) => ({
       x: [iteration.a, iteration.b],
-      y: [1 - index, 1 - index], // Offset each line vertically
+      y: [1 + index * 0.1, 1 + index * 0.1], // Menambahkan offset vertikal berdasarkan index
       type: "scatter",
       mode: "lines",
       line: { color: "green", dash: "solid" },
@@ -65,6 +64,7 @@ const FakePositionGraph = ({ iterations, functionInput }) => {
     }));
     return horizontalLines;
   };
+  
 
   const horizontalLines = generateHorizontalLines();
 
@@ -126,6 +126,22 @@ const FakePositionGraph = ({ iterations, functionInput }) => {
                 mode: "lines",
                 name: "Function",
               },
+              {
+                x: [currentIteration.a, currentIteration.a],
+                y: [-10, 10],
+                type: "scatter",
+                mode: "lines",
+                line: { color: "red", dash: "dot" },
+                name: "a (lower bound)",
+                },
+                {
+                x: [currentIteration.b, currentIteration.b],
+                y: [-10, 10],
+                type: "scatter",
+                mode: "lines",
+                line: { color: "blue", dash: "dot" },
+                name: "b (upper bound)",
+                },
               ...interpolationLines,
               ...horizontalLines,
               {

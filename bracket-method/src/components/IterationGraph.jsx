@@ -30,7 +30,7 @@ const IterationGraph = ({ iterations, functionInput }) => {
   const generateHorizontalLines = () => {
     const horizontalLines = iterations.slice(0, step + 1).map((iteration, index) => ({
       x: [iteration.a, iteration.b],
-      y: [5 - index, 5 - index], // Offset each line vertically
+      y: [1 + index * 0.1, 1 + index * 0.1], // Offset each line vertically
       type: "scatter",
       mode: "lines+markers",
       marker: { size: 5 },

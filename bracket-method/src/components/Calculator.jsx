@@ -5,11 +5,16 @@ import icon2 from '../assets/book.png'
 import icon3 from '../assets/book2.png'
 import IterationTabs from "./IterationTabs";
 import { MathJax, MathJaxContext } from "better-react-mathjax";
-// import { EditableMathField } from "react-mathquill";
-// import { MathfieldElement } from "mathlive";
+import { Tab, Tabs, Container, Row, Col } from "react-bootstrap";
+import BracketCheck from "./BracketCheck";
+import '../assets/mathquill/mathquill.css';
+import '../assets/mathquill/mathquill.js';  // pastikan Anda sudah mengimpor CSS MathQuill
+
+
 
 
 const Calculator = () => {
+  const [isValidInterval, setIsValidInterval] = useState(true); // Default true
   const [functionInput, setFunctionInput] = useState("");
   const [x0, setX0] = useState("");
   const [x1, setX1] = useState("");
@@ -21,25 +26,7 @@ const Calculator = () => {
   const [showLegend, setShowLegend] = useState(false);
   const [parsedFunction, setParsedFunction] = useState("");
   const mathFieldRef = useRef(null); 
-
-// // Define a global variable for browser compatibility
-// if (typeof global === "undefined") {
-//     var global = window;
-//   }
-  
-
-//   useEffect(() => {
-//     // Inisialisasi MathQuill setelah komponen dirender
-//     const MQ = MathQuill.getInterface(2); // Mengambil interface MathQuill
-//     const mathField = MQ.MathField(mathFieldRef.current, {
-//       handlers: {
-//         edit: () => {
-//           // Mendapatkan input matematis yang sudah diformat setiap kali pengguna mengetik
-//           setFunctionInput(mathField.latex());
-//         }
-//       }
-//     });
-//   }, []); sebelum
+  const [displayLimit, setDisplayLimit] = useState(10);
 
 
   const calculateBisection = (parsedInput) => {
@@ -76,32 +63,48 @@ const Calculator = () => {
     let a = parseFloat(x0);
     let b = parseFloat(x1);
     let tol = parseFloat(tolerance);
+    const maxIterations = 100;
     let steps = [];
     let iteration = 0;
 
-    while (Math.abs(b - a) > tol) {
-      let fa = evaluate(parsedInput, { x: a });
-      let fb = evaluate(parsedInput, { x: b });
-      let xn = (a * fb - b * fa) / (fb - fa);
-      let fxn = evaluate(parsedInput, { x: xn });
-
-      let update = fa * fxn < 0 ? "b = xn" : "a = xn";
-
-      steps.push({ iteration, a, b, fa, fb, xn, fxn, update });
-
-      if (Math.abs(fxn) < tol) break;
-
-      if (fa * fxn < 0) {
-        b = xn;
-      } else {
-        a = xn;
-      }
-      iteration++;
+    // Validate initial interval
+    let fa = evaluate(parsedInput, { x: a });
+    let fb = evaluate(parsedInput, { x: b });
+    if (fa * fb >= 0) {
+        throw new Error("The function must have opposite signs at a and b.");
     }
 
-    setRoot((a + b) / 2);
+    let xn = a; // Initial guess for the root
+
+    while (Math.abs(b - a) > tol && iteration < maxIterations) {
+        fa = evaluate(parsedInput, { x: a });
+        fb = evaluate(parsedInput, { x: b });
+        xn = (a * fb - b * fa) / (fb - fa);
+        let fxn = evaluate(parsedInput, { x: xn });
+
+        let update = fa * fxn < 0 ? "b = xn" : "a = xn";
+
+        steps.push({ iteration, a, b, fa, fb, xn, fxn, update });
+
+        if (Math.abs(fxn) < tol) break;
+
+        if (fa * fxn < 0) {
+            b = xn;
+        } else {
+            a = xn;
+        }
+
+        iteration++;
+    }
+
+    if (iteration >= maxIterations) {
+        console.warn("Max iterations reached. Method may not have converged.");
+    }
+
+    setRoot(xn); // Use xn as the root
     setResults(steps);
-  };
+};
+
   
   const parseInput = (input) => {
     return input.replace(/ln\(/g, "log("); // Ganti ln(x) dengan log(x)
@@ -122,10 +125,12 @@ const Calculator = () => {
         alert("Terjadi kesalahan dalam perhitungan. Periksa kembali input Anda.");
     }
 };
-// Fungsi untuk memformat input angka dalam format pangkat
-  const formatMathInput = (input) => {
-    return input.replace(/(\d)\^(\d+)/g, '$1^{#$2}');
-  };
+
+
+  
+  // filter hasil yang ditampilkan
+  const filteredResults = results.slice(0, displayLimit);
+
 
   
 
@@ -133,20 +138,33 @@ const Calculator = () => {
     <div>
       <div className="form-container">
         <MathJaxContext>
+         
+
             <div className="p-fungsi"> 
                 <p >Fungsi</p>                
             </div>
-            <label style={{ display: "flex", alignItems: "center", marginTop: "10px"  }}>
-            <span style={{fontSize:'20px'}}>
-            <MathJax>{`\\(f(x) =\\)`}</MathJax>
-            </span>
-            <input
-                style={{ marginLeft: "10px" }}
-                className="forms"
-                value={functionInput}
-                onChange={(e) => setFunctionInput(e.target.value)}
-            />
-            </label>
+            <div className="row">
+                <div className="col-4">
+                    <label style={{ display: "flex", alignItems: "center", marginTop: "10px"  }}>
+                        <span style={{fontSize:'20px', paddingRight:'10px'}}>
+                            <MathJax>{`\\(f(x) = \\)`}</MathJax>
+                        </span>
+                        {/* <div
+                            ref={mathFieldRef}
+                            style={{ fontSize:'20px', border: '1px solid #ddd', padding: '5px', width: '300px',height:'40px', borderRadius:'5px ' , minHeight: '30px' }}
+                        /> */}
+                        <input
+                            style={{ marginLeft: "10px" }}
+                            className="forms"
+                            value={functionInput}
+                            onChange={(e) => setFunctionInput(e.target.value)}
+                        />
+                    </label>
+
+                </div>
+                
+
+            </div>
             <div className="row">
                 <div className="col-4">
                     <div className="p-fungsi"> 
@@ -183,25 +201,48 @@ const Calculator = () => {
                     />
                 </label>
 
-                {/* Desired Tolerance */}
-                <label style={{ display: "flex", alignItems: "center", flex: 1 }}>
-                <span style={{ fontWeight: "bold" }}>Toleransi Perhitungan:</span>
-                <input
-                    type="number"
-                    style={{ marginLeft: "10px", flex: 1 }}
-                    className="forms"
-                    value={tolerance}
-                    onChange={(e) => setTolerance(e.target.value)}
-                    min="0.0000000001"
-                    max="0.1"
-                    step="0.0000000001"
-                />
-                </label>
+                
 
+                
+
+            </div>
+            <div className="row" style={{paddingTop:'20px'}}>
+                <div className="col-5">
+                    {/* Desired Tolerance */}
+                    <label style={{ display: "flex", alignItems: "center", flex: 1 }}>
+                    <span style={{ fontWeight: "bold" }}>Toleransi Perhitungan:</span>
+                    <input
+                        type="number"
+                        style={{ marginLeft: "10px", flex: 1 }}
+                        className="forms"
+                        value={tolerance}
+                        onChange={(e) => setTolerance(e.target.value)}
+                        min="0.0000000001"
+                        max="0.1"
+                        step="0.0000000001"
+                    />
+                    </label>
                 </div>
-            <div className="slider-container">
+                <div className="col-5">
+                    {/* Input batas iterasi */}
+                    <label style={{ display: "flex", alignItems: "center", flex: 1 }}>
+                    <span style={{ fontWeight: "bold", paddingRight:'10px' }}>Batas Iterasi yang Ditampilkan: </span>
+                        
+                        <input
+                        type="number"
+                        className="forms"
+                        value={displayLimit}
+                        onChange={(e) => setDisplayLimit(Number(e.target.value))}
+                        min="1"
+                        step="1"
+                        />
+                    </label>
+                </div>
+            </div>
+
+            <div className="slider-container" style={{paddingTop:'20px'}}>
                 <label className="slider-label">
-                    Precision (Digits): {precision}
+                    Presisi (Digit): {precision}
                 </label>
                 <input
                     className="slider-name"
@@ -230,6 +271,17 @@ const Calculator = () => {
         </MathJaxContext>
       </div>
 
+    <Tabs>
+        <Tab eventKey="validation" title="Cek Interval">
+            <div style={{ padding: "20px" }}>
+                <BracketCheck precision={precision} functionInput={functionInput} a={x0} b={x1} setIsValidInterval={setIsValidInterval} />
+            </div>
+        </Tab>
+
+    </Tabs>
+    
+
+
       <h3>Hasil:</h3>
       <MathJaxContext>
       <MathJax>
@@ -249,8 +301,8 @@ const Calculator = () => {
             <div className="col-6">
                 <p><strong>{`\\(x_n\\)`}</strong>: Titik tengah atau solusi sementara</p>
                 <p><strong>{`\\(f(x_n)\\)`}</strong>: Nilai fungsi pada {`\\(x_n\\)`}</p>
-                <p><strong>Toleransi Perhitungan</strong>: <br />Memastikan bahwa akar sudah cukup terkunci dalam interval {`\\([a,b].\\)`} <br />
-                Iterasi tetap berjalan hingga {`\\(| b - a |\\)`} memenuhi toleransi <br />
+                <p><strong>Toleransi Perhitungan</strong>: <br /> Menentukan sejauh mana hasil akhir dianggap cukup dekat dengan akar sebenarnya, <br /> sehingga iterasi dapat dihentikan. <br />Memastikan bahwa akar sudah cukup terpenuhi dalam interval {`\\([a,b].\\)`} <br />
+                Di mana iterasi tetap berjalan hingga {`\\(| b - a |\\)`} memenuhi toleransi. <br />
                 {`\\(| b - a | \\lt toleransi\\)`}                 
                 </p>
             </div>
@@ -272,9 +324,9 @@ const Calculator = () => {
         )}
       </button>
 
-      {results.length > 0 && (
+      {isValidInterval && filteredResults.length > 0 && (
         <IterationTabs
-          iterations={results}
+          iterations={filteredResults}
           functionInput={parsedFunction}
           tolerance={tolerance}
           precision={precision}

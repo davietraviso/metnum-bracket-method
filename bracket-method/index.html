@@ -2,12 +2,41 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/tale2.png" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/mathlive/dist/mathlive.core.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/mathlive/dist/mathlive.css"
+    />
+    <link rel="stylesheet" href="/path/to/mathquill.css"/>
+
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
+    <title>Bracket Method</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        /* height: 100%; */
+      }
+      #root {
+        width: 90%;
+        /* height: 100%; */
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root" ></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="/path/to/mathquill.js"></script>
+    <script>
+      var MQ = MathQuill.getInterface(2);
+    </script>
+
   </body>
 </html>

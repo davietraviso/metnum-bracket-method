@@ -12,6 +12,8 @@ const IterationTabs = ({ iterations, precision, root, functionInput, method }) =
     return num.toFixed(precision); // Format number to the given precision
   };
 
+  
+
   return (
     <Container style={{ marginTop: "20px" }}>
       <Tabs
@@ -61,47 +63,95 @@ const IterationTabs = ({ iterations, precision, root, functionInput, method }) =
         </Tab>
 
 
-        <Tab eventKey="manual" title="Kalkulasi Iterasi" style={{paddingBottom:'50px'}}>
-          <MathJaxContext>
-            <div>
-              {iterations.map((iteration, index) => (
-                <div key={index} style={{ marginBottom: "20px" }}>
-                  <h5>Iterasi ke-{index + 1}:</h5>
-                  <MathJax>
-                    {`
-                      \\(a = ${formatNumber(iteration.a)}, b = ${formatNumber(iteration.b)}, x_n = \\frac{${formatNumber(iteration.a)} + ${formatNumber(iteration.b)}}{2} = ${formatNumber(iteration.xn)}\\)
-                    `}
-                  </MathJax>
-                  <MathJax>
-                    {`
-                      \\(f(x_n) = f(${formatNumber(iteration.xn)}) = ${formatNumber(iteration.fxn)}\\)
-                    `}
-                  </MathJax>
-                  <p>
-                    Root berada di antara  <br />
-                    <label>
-                    <MathJax>                        
-                        {`\\((${formatNumber(iteration.a)})\\)`} dan  {`\\((${formatNumber(iteration.b)})\\)`}
-                    </MathJax>                  
-                    
-                    </label>
-                    
-                  </p>
-                  <p>
-                    Interval baru:{" "}
-                    <MathJax>
-                    {iteration.update === "b = xn"
-                      ? `\\([${formatNumber(iteration.a)}, ${formatNumber(iteration.xn)}]\\)`
-                      : `\\([${formatNumber(iteration.xn)}, ${formatNumber(iteration.b)}]\\)`}
+        
 
+        {method === 'bisection' ? (
+          <Tab eventKey="manual" title="Kalkulasi Iterasi (Bisection)" style={{paddingBottom:'50px'}}>
+            <MathJaxContext key={method}>
+              <div>
+                {iterations.map((iteration, index) => (
+                  <div key={index} style={{ marginBottom: "20px" }}>
+                    <h5>Iterasi ke-{index + 1}:</h5>
+                    <MathJax>
+                      {`
+                        \\(a = ${formatNumber(iteration.a)}, b = ${formatNumber(iteration.b)}, x_n = \\frac{${formatNumber(iteration.a)} + ${formatNumber(iteration.b)}}{2} = ${formatNumber(iteration.xn)}\\)
+                      `}
                     </MathJax>
-                  </p>
-                </div>
-              ))}
-              {root !== null && <h3>Root (x): {root.toFixed(precision)}</h3>}
-            </div>
-          </MathJaxContext>
-        </Tab>
+                    <MathJax>
+                      {`
+                        \\(f(x_n) = f(${formatNumber(iteration.xn)}) = ${formatNumber(iteration.fxn)}\\)
+                      `}
+                    </MathJax>
+                    <p>
+                      Root berada di antara  <br />
+                      <label>
+                      <MathJax>                        
+                          {`\\((${formatNumber(iteration.a)})\\)`} dan  {`\\((${formatNumber(iteration.b)})\\)`}
+                      </MathJax>                  
+                      
+                      </label>
+                      
+                    </p>
+                    <p>
+                      Interval baru:{" "}
+                      <MathJax>
+                      {iteration.update === "b = xn"
+                        ? `\\([${formatNumber(iteration.a)}, ${formatNumber(iteration.xn)}]\\)`
+                        : `\\([${formatNumber(iteration.xn)}, ${formatNumber(iteration.b)}]\\)`}
+
+                      </MathJax>
+                    </p>
+                  </div>
+                ))}
+                {root !== null && <h3>Root (x): {root.toFixed(precision)}</h3>}
+              </div>
+            </MathJaxContext>
+          </Tab>
+        ) : (
+          <Tab eventKey="manual" title="Kalkulasi Iterasi (False Position)" style={{ paddingBottom: "50px" }}>
+            <MathJaxContext key={method}> 
+              <div>
+                {iterations.map((iteration, index) => (
+                  <div key={index} style={{ marginBottom: "20px" }}>
+                    <h5>Iterasi ke-{index + 1}:</h5>
+                    <MathJax>
+                      {`
+                        \\(a = ${formatNumber(iteration.a)}, b = ${formatNumber(iteration.b)}, \\)
+                        \\(x_n = b - \\frac{f(b)(b - a)}{f(b) - f(a)} = ${formatNumber(iteration.xn)}\\)
+                      `}
+                    </MathJax>
+                    <MathJax>
+                      {`
+                        \\(f(x_n) = f(${formatNumber(iteration.xn)}) = ${formatNumber(iteration.fxn)}\\)
+                      `}
+                    </MathJax>
+                    <p>
+                      Root berada di antara: <br />
+                      <label>
+                        <MathJax>
+                          {iteration.update === "b = xn"
+                            ? `\\([${formatNumber(iteration.a)}, ${formatNumber(iteration.xn)}]\\)`
+                            : `\\([${formatNumber(iteration.xn)}, ${formatNumber(iteration.b)}]\\)`}
+                        </MathJax>
+                      </label>
+                    </p>
+                    <p>
+                      Interval baru:{" "}
+                      <MathJax>
+                        {iteration.update === "b = xn"
+                          ? `\\([${formatNumber(iteration.a)}, ${formatNumber(iteration.xn)}]\\)`
+                          : `\\([${formatNumber(iteration.xn)}, ${formatNumber(iteration.b)}]\\)`}
+                      </MathJax>
+                    </p>
+                  </div>
+                ))}
+                {root !== null && <h3>Root (x): {root.toFixed(precision)}</h3>}
+              </div>
+            </MathJaxContext>
+          </Tab>
+
+        )}
+
         {method === 'bisection' ? (
           <Tab eventKey="graph" title="Grafik Iterasi">
             <IterationGraph iterations={iterations} functionInput={functionInput} />
@@ -111,12 +161,6 @@ const IterationTabs = ({ iterations, precision, root, functionInput, method }) =
             <FakePositionGraph iterations={iterations} functionInput={functionInput} />
           </Tab>
         )}
-        {/* <Tab eventKey="graph" title="Grafik Iterasi" style={{paddingBottom:'50px'}}> 
-            <IterationGraph iterations={iterations} functionInput={functionInput} />
-        </Tab>
-        <Tab eventKey="graph" title="Grafik Iterasi2" style={{ paddingBottom: "50px" }}>
-            <FakePositionGraph iterations={iterations} functionInput={functionInput} />
-        </Tab> */}
 
       </Tabs>
     </Container>
