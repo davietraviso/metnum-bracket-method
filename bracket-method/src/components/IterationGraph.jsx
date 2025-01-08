@@ -166,7 +166,7 @@ const IterationGraph = ({ iterations, functionInput }) => {
                 },
             }}
             config={{
-                staticPlot: false, // Biarkan zoom aktif untuk interaksi
+                staticPlot: false, // Biarkan zoom aktif 
             }}
             useResizeHandler={true}
             style={{ width: "100%", height: "500px" }}
